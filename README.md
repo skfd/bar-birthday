@@ -71,7 +71,7 @@ reuses the v1 pipeline from (1).
   day-precise feature must not treat them as real days.
 - **Free-form values.** 185 of the 2,753 do not parse: `13.09.2025`, `c1880`, `~1990`,
   `1991..1999`, `before 1976`, `2001;2004-02-02`, `traditionally 1368 but first recorded in
-  1589`. Ontario's own 18 include three of these. The parser must be forgiving and the UI
+  1589`. Ontario's own 18 include four of these. The parser must be forgiving and the UI
   should show how confident it is.
 - **`start_date` is ambiguous** — it may describe the *building* rather than the
   *establishment*. A 1600s building can house a bar that opened in 2019. Several of the
