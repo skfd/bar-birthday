@@ -1,7 +1,9 @@
 ---
-// Asks the browser for a location and annotates each venue card with a distance.
-// Everything happens in the page: no coordinates are sent anywhere, because there
-// is nowhere to send them — the site is static files.
+// Two ways to say where you are: let the browser tell us, or type a place.
+//
+// The browser's own location never leaves the page. A typed place has to be
+// turned into coordinates by somebody, and that somebody is OpenStreetMap's
+// geocoder — so the text you type does leave, and the UI says so plainly.
 //
 // `sort` is off where the existing order carries meaning, as on /birthdays/,
 // which is oldest-first and says so.
@@ -9,18 +11,48 @@ const { sort = true } = Astro.props;
 ---
 
 <div class="nearme" data-nearme data-sort={sort ? 'true' : 'false'} hidden>
-  <button type="button" data-nearme-ask>Show how far away these are</button>
-  <span class="nearme-note" data-nearme-status role="status"
-    >Your location stays in this browser. Nothing is sent anywhere.</span
-  >
+  <div class="nearme-controls">
+    <button type="button" data-nearme-ask hidden>Use my location</button>
+    <form data-nearme-form>
+      <input
+        type="text"
+        name="place"
+        data-nearme-place
+        placeholder="or type a place in Ontario"
+        aria-label="Where you are"
+        autocomplete="off"
+        spellcheck="false"
+      />
+      <button type="submit">Go</button>
+    </form>
+    <button type="button" data-nearme-clear hidden>Clear</button>
+  </div>
+  <p class="nearme-note" data-nearme-status role="status">
+    Your browser location stays in this page. A typed place is looked up by
+    OpenStreetMap&rsquo;s geocoder, which means the text is sent there.
+  </p>
 </div>
 
 <script>
   const root = document.querySelector('[data-nearme]');
-  if (root && 'geolocation' in navigator) {
+  // Six days of the year have no venues, and "new on the map" can run dry. With
+  // nothing to measure, the control stays hidden rather than offering to
+  // measure the distance to nothing.
+  if (root && document.querySelector('[data-lat][data-lon]')) {
     const status = root.querySelector('[data-nearme-status]');
-    const button = root.querySelector('[data-nearme-ask]');
+    const askButton = root.querySelector('[data-nearme-ask]');
+    const clearButton = root.querySelector('[data-nearme-clear]');
+    const form = root.querySelector('[data-nearme-form]');
+    const input = root.querySelector('[data-nearme-place]');
+
+    const STORE = 'barbirthday:from';
+    const CACHE = 'barbirthday:geocode';
+    // Ontario, comfortably. Nominatim is asked to stay inside it, because every
+    // venue on this site is in it.
+    const ONTARIO = '-95.2,56.9,-74.3,41.6';
+
     root.hidden = false;
+    if ('geolocation' in navigator) askButton.hidden = false;
 
     const format = (km) =>
       km < 1 ? `${Math.round(km * 1000)} m away` : `${km < 10 ? km.toFixed(1) : Math.round(km)} km away`;
@@ -37,7 +69,7 @@ const { sort = true } = Astro.props;
       return 6371 * 2 * Math.asin(Math.sqrt(a));
     }
 
-    function annotate(lat, lon) {
+    function annotate(lat, lon, label) {
       const cards = [...document.querySelectorAll('[data-lat][data-lon]')];
       let nearest = Infinity;
       for (const card of cards) {
@@ -49,12 +81,14 @@ const { sort = true } = Astro.props;
       }
       // Ontario-wide data and a visitor from anywhere: say so rather than
       // presenting a 4,000 km "nearest" as if it were useful.
+      const from = label ? ` from ${label}` : '';
       status.textContent =
         nearest > 300
-          ? `Nearest is ${format(nearest)} — this site only covers Ontario.`
-          : `Nearest is ${format(nearest)}. Sorted by distance.`;
+          ? `Nearest is ${format(nearest)}${from} — this site only covers Ontario.`
+          : `Nearest is ${format(nearest)}${from}.`;
       if (nearest <= 300 && root.dataset.sort === 'true') sortByDistance(cards);
-      button.hidden = true;
+      askButton.hidden = true;
+      clearButton.hidden = false;
     }
 
     // Sort within each list. A page can hold more than one — appending every
@@ -74,18 +108,115 @@ const { sort = true } = Astro.props;
       }
     }
 
-    button.addEventListener('click', () => {
+    function remember(lat, lon, label) {
+      try {
+        localStorage.setItem(STORE, JSON.stringify({ lat, lon, label }));
+      } catch {}
+    }
+
+    /**
+     * Nominatim's policy: user-triggered only, never as-you-type, one request a
+     * second, and cache what comes back so the same query is not asked twice.
+     */
+    const geocodeCache = (() => {
+      try {
+        return JSON.parse(localStorage.getItem(CACHE) ?? '{}');
+      } catch {
+        return {};
+      }
+    })();
+    let lastCall = 0;
+
+    async function geocode(query) {
+      const key = query.trim().toLowerCase().replace(/\s+/g, ' ');
+      if (key in geocodeCache) return geocodeCache[key];
+
+      const wait = 1000 - (Date.now() - lastCall);
+      if (wait > 0) await new Promise((r) => setTimeout(r, wait));
+      lastCall = Date.now();
+
+      const url = new URL('https://nominatim.openstreetmap.org/search');
+      url.search = new URLSearchParams({
+        q: key,
+        format: 'jsonv2',
+        limit: '1',
+        countrycodes: 'ca',
+        viewbox: ONTARIO,
+        bounded: '1',
+      });
+      const res = await fetch(url, { headers: { Accept: 'application/json' } });
+      if (!res.ok) throw new Error(`geocoder returned ${res.status}`);
+      const [hit] = await res.json();
+      const result = hit ? { lat: Number(hit.lat), lon: Number(hit.lon), label: hit.display_name } : null;
+
+      geocodeCache[key] = result;
+      try {
+        localStorage.setItem(CACHE, JSON.stringify(geocodeCache));
+      } catch {}
+      return result;
+    }
+
+    /** Trim "Kingston, Frontenac County, Eastern Ontario, Ontario, Canada" down. */
+    const shorten = (displayName) => displayName.split(',').slice(0, 2).join(',').trim();
+
+    askButton.addEventListener('click', () => {
       status.textContent = 'Asking your browser…';
       navigator.geolocation.getCurrentPosition(
-        (pos) => annotate(pos.coords.latitude, pos.coords.longitude),
+        (pos) => {
+          remember(pos.coords.latitude, pos.coords.longitude, null);
+          annotate(pos.coords.latitude, pos.coords.longitude, null);
+        },
         (err) => {
           status.textContent =
             err.code === err.PERMISSION_DENIED
-              ? 'No location, no problem — everything above still works.'
-              : 'Could not get a location from your browser.';
+              ? 'No location, no problem — type a place instead.'
+              : 'Could not get a location from your browser. Type a place instead.';
         },
         { timeout: 10000, maximumAge: 300000 },
       );
     });
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const query = input.value.trim();
+      if (!query) return;
+      const submit = form.querySelector('button');
+      submit.disabled = true;
+      status.textContent = `Looking up ${query}…`;
+      try {
+        const hit = await geocode(query);
+        if (!hit) {
+          status.textContent = `Could not find “${query}” in Ontario. Try a town or a postcode.`;
+        } else {
+          const label = shorten(hit.label);
+          remember(hit.lat, hit.lon, label);
+          annotate(hit.lat, hit.lon, label);
+        }
+      } catch {
+        status.textContent = 'The geocoder did not answer. Try again in a moment.';
+      } finally {
+        submit.disabled = false;
+      }
+    });
+
+    clearButton.addEventListener('click', () => {
+      try {
+        localStorage.removeItem(STORE);
+      } catch {}
+      for (const card of document.querySelectorAll('[data-distance]')) card.textContent = '';
+      input.value = '';
+      clearButton.hidden = true;
+      if ('geolocation' in navigator) askButton.hidden = false;
+      status.textContent = 'Cleared. Distances are off again.';
+    });
+
+    // A place given once holds for the rest of the visit, so moving between days
+    // does not mean saying where you are over and over.
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORE) ?? 'null');
+      if (saved && Number.isFinite(saved.lat) && Number.isFinite(saved.lon)) {
+        annotate(saved.lat, saved.lon, saved.label);
+      }
+    } catch {}
   }
 </script>

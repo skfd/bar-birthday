@@ -98,8 +98,12 @@ reuses the v1 pipeline from (1).
 - **Every venue gets a contribute page** at `/add/{slug}/` — a different thing from a bar page,
   and the one route where the thin ones have a job to do.
 - **Every calendar day gets a permalink** at `/day/MM-DD/`, all 366 including 29 February.
-- **Distance is client-side and opt-in.** No coordinates leave the browser; there is nowhere
-  for them to go.
+- **Distance is client-side and opt-in**, from the browser's location or a typed place.
+  Browser coordinates never leave the page. A typed place has to be resolved by somebody, and
+  that is Nominatim — so the typed text does leave, and the control says so. Built to the
+  Nominatim policy: submit-only (never as-you-type, which it forbids), one request a second,
+  results cached in `localStorage`, and bounded to an Ontario viewbox because every venue is.
+  A chosen location persists across pages so you say it once.
 - **The v1-timestamp cache is committed**, as `data/created.jsonl`, one JSON object per line.
   A v1 timestamp never changes, so the file only grows. `data/ontario-venues.raw.json` is
   derived and gitignored.
