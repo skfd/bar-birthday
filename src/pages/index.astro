@@ -6,7 +6,7 @@ import { mapBirthdaysOn, realBirthdays, venues } from '../lib/venues.js';
 // The site is rebuilt nightly, so "today" is the build date.
 const today = new Date();
 const todays = mapBirthdaysOn(today);
-const dateLabel = today.toLocaleDateString('en-CA', {
+const dateLabel = today.toLocaleDateString('en-GB', {
   day: 'numeric',
   month: 'long',
   timeZone: 'UTC',

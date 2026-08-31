@@ -69,7 +69,7 @@ export function address(v) {
 }
 
 export function formatDate(iso) {
-  return new Date(iso).toLocaleDateString('en-CA', {
+  return new Date(iso).toLocaleDateString('en-GB', {
     day: 'numeric',
     month: 'long',
     year: 'numeric',

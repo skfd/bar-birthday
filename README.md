@@ -1,6 +1,15 @@
 # bar-birthday
 
-**Status: empty. Nothing has been built yet.** This README is the entire handoff.
+**Status: v1 scaffold built and building.** The data pipeline runs, the site renders,
+the nightly workflow is in place. Not deployed, and the domain is not registered.
+
+```
+npm install
+node scripts/fetch-venues.mjs      # Overpass -> data/ontario-venues.raw.json (not committed)
+node scripts/backfill-created.mjs  # OSM API v1 timestamps -> data/created.jsonl (committed, permanent)
+npm run build                      # -> dist/
+npm run dev
+```
 
 ## The goal
 
@@ -77,20 +86,31 @@ reuses the v1 pipeline from (1).
   *establishment*. A 1600s building can house a bar that opened in 2019. Several of the
   world's pre-1800 entries are almost certainly the building.
 
-## Open questions
+## Decisions taken (2026-08-31)
 
-- **Stack and hosting.** Nothing chosen. The dataset is ~1,856 rows and changes slowly,
-  which points at a nightly build and a static deploy rather than a live backend — but that
-  is a recommendation, not a decision.
-- **What a single bar's page looks like**, and whether one exists at all in v1 or the feed
-  is the whole site.
-- **How the v1-timestamp cache is stored and refreshed** — committed to the repo, or a build
-  artifact.
-- **The visual concept.** Entirely open. A site about age and permanence has an obvious
-  register available to it and no design work has been done.
+- **Stack: Astro, static output, nightly GitHub Actions build**, deploying to GitHub Pages.
+  No backend. `.github/workflows/nightly.yml` fetches Overpass, backfills any newly-appeared
+  element ids, commits the cache and deploys.
+- **Site shape: the feed plus pages for the 18 real birthdays.** Every venue is a card in the
+  "on the map since" feed; only a venue carrying a `start_date` gets its own URL
+  (`/bars/{slug}/`). The other 1,838 have nothing to put on a page yet.
+- **The v1-timestamp cache is committed**, as `data/created.jsonl`, one JSON object per line.
+  A v1 timestamp never changes, so the file only grows. `data/ontario-venues.raw.json` is
+  derived and gitignored.
+- **Visual register: warm barroom** — low light, brass and amber, warm paper for the type.
+- **The parser reports confidence rather than a date it cannot stand behind.** Tiers are
+  `day` / `month` / `year` / `approx` / `none`, surfaced as a chip in the UI. Per the caveat
+  below, a `YYYY-MM-01` is read as *month* precision and never enters a day-of-year feed.
+
+## Still open
+
 - **How anyone knows it worked.** Contribution counts? Traffic? Neither has a target yet.
 - **Whether `start_date` should ever be crowd-sourced on-site** rather than only pushing
   people to the OSM editor. Storing bar facts outside OSM is a real fork in the road.
+- **The add-a-birthday flow is currently a bare deep link** to the OSM editor
+  (`/edit?node={id}`). It does not pre-fill the `start_date` tag, which would want an iD
+  preset link or a josm remote-control call.
+- **Global expansion.** Still a later decision, not a v1 flag.
 
 ## Queries used (verified working, 2026-08-30)
 
@@ -127,5 +147,10 @@ Creation date for one element: `GET https://api.openstreetmap.org/api/0.6/{node|
 
 ## Next steps
 
-- `/gh-init` from inside this folder when the project has earned a remote.
-- The domain barbirthday.com has not been checked for availability or registered.
+- `/gh-init` from inside this folder — the nightly workflow needs a remote and needs Pages
+  enabled with source set to GitHub Actions.
+- The domain barbirthday.com has not been checked for availability or registered. Nothing in
+  the build depends on it; `astro.config.mjs` names it as `site` and would need changing if
+  the project lands elsewhere.
+- No tests yet. The `start_date` parser is the piece that most wants them — it was checked by
+  hand against Ontario's 18 values and the caveats above, not by an automated suite.
