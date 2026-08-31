@@ -5,7 +5,9 @@ import { confidenceLabel } from '../lib/start-date.js';
 const { venue, showYears = false } = Astro.props;
 const where = address(venue);
 const kind = venue.amenity === 'pub' ? 'Pub' : venue.amenity === 'nightclub' ? 'Nightclub' : venue.amenity === 'biergarten' ? 'Biergarten' : 'Bar';
-const linked = Boolean(venue.startDate);
+// Only venues in `realBirthdays` get a page, and that excludes an unreadable
+// start_date — so an unparseable value must not become a link to a 404.
+const linked = Boolean(venue.startDate) && venue.startDate.precision !== 'none';
 ---
 
 <li class="venue">
