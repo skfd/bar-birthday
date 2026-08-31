@@ -1,7 +1,8 @@
 # bar-birthday
 
-**Status: v1 scaffold built and building.** The data pipeline runs, the site renders,
-the nightly workflow is in place. Not deployed, and the domain is not registered.
+**Status: v1 is live** at <https://skfd.github.io/bar-birthday/>, rebuilt nightly from
+OpenStreetMap. The domain barbirthday.com is not registered; when it is, set `SITE_URL` and
+`BASE_PATH=/` in the workflow and every link follows — they all go through `src/lib/url.js`.
 
 ```
 npm install
@@ -147,10 +148,8 @@ Creation date for one element: `GET https://api.openstreetmap.org/api/0.6/{node|
 
 ## Next steps
 
-- `/gh-init` from inside this folder — the nightly workflow needs a remote and needs Pages
-  enabled with source set to GitHub Actions.
-- The domain barbirthday.com has not been checked for availability or registered. Nothing in
-  the build depends on it; `astro.config.mjs` names it as `site` and would need changing if
-  the project lands elsewhere.
+- The domain barbirthday.com has not been checked for availability or registered. The repo is
+  public because GitHub Pages needs that on a free plan.
 - No tests yet. The `start_date` parser is the piece that most wants them — it was checked by
   hand against Ontario's 18 values and the caveats above, not by an automated suite.
+- The nightly build has not yet run on its own schedule, only on push.
