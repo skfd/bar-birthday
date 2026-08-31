@@ -17,6 +17,7 @@ const pathname = Astro.url.pathname;
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
     <link rel="canonical" href={new URL(pathname, Astro.site)} />
+    <link rel="alternate" type="application/rss+xml" title="On the map since" href={url('/feed.xml')} />
   </head>
   <body>
     <header class="masthead wrap">

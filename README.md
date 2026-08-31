@@ -94,23 +94,47 @@ reuses the v1 pipeline from (1).
   element ids, commits the cache and deploys.
 - **Site shape: the feed plus pages for the 18 real birthdays.** Every venue is a card in the
   "on the map since" feed; only a venue carrying a `start_date` gets its own URL
-  (`/bars/{slug}/`). The other 1,838 have nothing to put on a page yet.
+  (`/bars/{slug}/`). The other 1,808 have nothing to put on a page yet.
+- **Every venue gets a contribute page** at `/add/{slug}/` — a different thing from a bar page,
+  and the one route where the thin ones have a job to do.
+- **Every calendar day gets a permalink** at `/day/MM-DD/`, all 366 including 29 February.
+- **Distance is client-side and opt-in.** No coordinates leave the browser; there is nowhere
+  for them to go.
 - **The v1-timestamp cache is committed**, as `data/created.jsonl`, one JSON object per line.
   A v1 timestamp never changes, so the file only grows. `data/ontario-venues.raw.json` is
   derived and gitignored.
-- **Visual register: warm barroom** — low light, brass and amber, warm paper for the type.
+- **The current CSS is scratch.** A warm-barroom palette is in place so the pages are legible,
+  but the visual concept is explicitly *not* decided and a real design comes later.
 - **The parser reports confidence rather than a date it cannot stand behind.** Tiers are
   `day` / `month` / `year` / `approx` / `none`, surfaced as a chip in the UI. Per the caveat
   below, a `YYYY-MM-01` is read as *month* precision and never enters a day-of-year feed.
+
+## Routes
+
+| route | what |
+|---|---|
+| `/` | today's "on the map since" feed |
+| `/day/MM-DD/` | the same for any of the 366 days, with prev/next |
+| `/birthdays/` | the 18 with a real `start_date`, oldest first |
+| `/bars/{slug}/` | a page each for those 18 |
+| `/add/{slug}/` | contribute an opening date — one per venue, ~1,826 |
+| `/new/` | added to OSM in the last 30 days |
+| `/feed.xml`, `/today.json` | today's feed, for machines |
+
+## On the add-a-birthday flow
+
+Verified against iD's `API.md` on 2026-08-31: **iD has no URL parameter that pre-fills a tag**
+on an existing element. It takes `id`, `presets`, `comment`, `hashtags` and map state, nothing
+that sets `start_date`. So the honest flow is a deep link into iD plus a copy-ready
+`start_date=` snippet and instructions. JOSM remote control *can* pre-fill —
+`http://127.0.0.1:8111/load_object?objects=n123&addtags=start_date%3DYYYY` — and that link is
+offered as a second path for anyone running JOSM.
 
 ## Still open
 
 - **How anyone knows it worked.** Contribution counts? Traffic? Neither has a target yet.
 - **Whether `start_date` should ever be crowd-sourced on-site** rather than only pushing
   people to the OSM editor. Storing bar facts outside OSM is a real fork in the road.
-- **The add-a-birthday flow is currently a bare deep link** to the OSM editor
-  (`/edit?node={id}`). It does not pre-fill the `start_date` tag, which would want an iD
-  preset link or a josm remote-control call.
 - **Global expansion.** Still a later decision, not a v1 flag.
 
 ## Queries used (verified working, 2026-08-30)

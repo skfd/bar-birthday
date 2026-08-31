@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import Venue from '../../components/Venue.astro';
+import NearMe from '../../components/NearMe.astro';
 import { newOnTheMap } from '../../lib/venues.js';
 
 const today = new Date();
@@ -19,6 +20,8 @@ const recent = newOnTheMap(today, 30);
       necessarily newly open &mdash; a place can stand for decades before anyone puts it on the map.
     </p>
   </section>
+
+  <NearMe />
 
   {
     recent.length > 0 ? (

@@ -1,7 +1,8 @@
 ---
 import Base from '../layouts/Base.astro';
 import Venue from '../components/Venue.astro';
-import { mapBirthdaysOn, realBirthdays, venues } from '../lib/venues.js';
+import NearMe from '../components/NearMe.astro';
+import { mapBirthdaysOn, realBirthdays, venues, dayKey } from '../lib/venues.js';
 import { url } from '../lib/url.js';
 
 // The site is rebuilt nightly, so "today" is the build date.
@@ -13,6 +14,7 @@ const dateLabel = today.toLocaleDateString('en-GB', {
   timeZone: 'UTC',
 });
 const oldest = todays[0];
+const todayPath = `/day/${dayKey(today)}/`;
 ---
 
 <Base
@@ -25,9 +27,12 @@ const oldest = todays[0];
     <p>
       {todays.length}{' '}
       {todays.length === 1 ? 'Ontario venue was' : 'Ontario venues were'} first drawn on the map on
-      this day{oldest && <> &mdash; the earliest of them {oldest.yearsOnMap} years ago</>}.
+      this day{oldest && <> &mdash; the earliest of them {oldest.yearsOnMap} years ago</>}. <a
+        href={url(todayPath)}>Permalink for {dateLabel}</a>, or <a href={url('/feed.xml')}>subscribe</a>.
     </p>
   </section>
+
+  <NearMe />
 
   {
     todays.length > 0 ? (

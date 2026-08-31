@@ -11,9 +11,10 @@ const kind = venue.amenity === 'pub' ? 'Pub' : venue.amenity === 'nightclub' ? '
 const linked = Boolean(venue.startDate) && venue.startDate.precision !== 'none';
 ---
 
-<li class="venue">
+<li class="venue" data-lat={venue.lat} data-lon={venue.lon}>
   <p class="venue-name">
     {linked ? <a href={url(`/bars/${venue.slug}/`)}>{venue.name}</a> : venue.name}
+    <span class="distance" data-distance></span>
   </p>
 
   <p class="venue-line">
@@ -34,7 +35,9 @@ const linked = Boolean(venue.startDate) && venue.startDate.precision !== 'none';
   }
 
   <p class="venue-meta">
-    {kind}{where && <> &middot; {where}</>} &middot; <a href={venue.osmUrl}>OSM</a>
-    {!venue.startDate && <> &middot; <a href={venue.editUrl}>add an opening date</a></>}
+    {kind}{where && <> &middot; {where}</>} &middot; <a href={venue.osmUrl}>OSM</a> &middot;{' '}
+    <a href={url(`/add/${venue.slug}/`)}>
+      {venue.startDate ? 'check this date' : 'add an opening date'}
+    </a>
   </p>
 </li>

@@ -325,3 +325,121 @@ a:hover {
     scroll-behavior: smooth;
   }
 }
+
+/* Distance, day navigation, contribute form ------------------------------- */
+
+.distance {
+  margin-left: 0.6rem;
+  color: var(--ink-faint);
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+}
+
+.distance:empty {
+  display: none;
+}
+
+.nearme {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.nearme button {
+  padding: 0.4rem 0.85rem;
+  background: transparent;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  color: var(--amber);
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.nearme button:hover {
+  border-color: var(--amber-dim);
+}
+
+.nearme-note {
+  color: var(--ink-faint);
+  font-family: var(--sans);
+  font-size: 0.75rem;
+}
+
+.daynav {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 2.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--rule);
+  font-family: var(--sans);
+  font-size: 0.82rem;
+}
+
+.tagbox {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 1rem 1.15rem;
+  background: var(--bg-sunk);
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.tagbox input {
+  flex: 1 1 8rem;
+  min-width: 0;
+  padding: 0.35rem 0.5rem;
+  background: var(--bg);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  color: var(--ink);
+  font: inherit;
+}
+
+.tagbox input:focus-visible {
+  outline: 2px solid var(--amber-dim);
+  outline-offset: 1px;
+}
+
+.tagbox button {
+  padding: 0.35rem 0.8rem;
+  background: transparent;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  color: var(--amber);
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.tagbox .nearme-note {
+  flex-basis: 100%;
+}
+
+.steps {
+  margin: 1.5rem 0 0;
+  padding-left: 1.2rem;
+}
+
+.steps li {
+  margin-bottom: 1.5rem;
+}
+
+.steps p {
+  margin: 0.75rem 0 0;
+  color: var(--ink-dim);
+  font-size: 0.95rem;
+}
+
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.9em;
+  color: var(--brass);
+}

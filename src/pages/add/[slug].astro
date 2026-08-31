@@ -1,0 +1,118 @@
+---
+import Base from '../../layouts/Base.astro';
+import { venues, address, formatDate } from '../../lib/venues.js';
+import { url } from '../../lib/url.js';
+
+// One per venue, including the 18 that already have a date — those pages ask you
+// to check it rather than add one. This is the point of the site: 1,839 of these
+// have no opening date, and the only way that changes is somebody putting it in.
+export function getStaticPaths() {
+  return venues.map((venue) => ({ params: { slug: venue.slug }, props: { venue } }));
+}
+
+const { venue } = Astro.props;
+const where = address(venue);
+const objectId = `${venue.osmType.charAt(0)}${venue.osmId}`;
+const idUrl = `https://www.openstreetmap.org/edit?editor=id&${venue.osmType}=${venue.osmId}`;
+const josmUrl = `http://127.0.0.1:8111/load_object?objects=${objectId}&addtags=start_date%3DYYYY`;
+const existing = venue.startDate;
+---
+
+<Base
+  title={`Add an opening date — ${venue.name} | Bar Birthday`}
+  description={`Put ${venue.name}'s opening date into OpenStreetMap, where it stays for everyone.`}
+>
+  <article>
+    <header class="bar-hero">
+      <h1>{venue.name}</h1>
+      <p class="bar-age">
+        {
+          existing ? (
+            <>Recorded as opening {existing.display}. If that is wrong, it is worth fixing.</>
+          ) : (
+            <>No opening date on record. If you know it, here is how to put it there.</>
+          )
+        }
+      </p>
+      <p class="venue-meta">
+        {where && <>{where} &middot; </>}on the map since {formatDate(venue.createdAt)} &middot;{' '}
+        <a href={venue.osmUrl}>{venue.osmType}/{venue.osmId}</a>
+      </p>
+    </header>
+
+    <div class="section-head">
+      <h2>The tag</h2>
+      <p>This is what OpenStreetMap wants. Year alone is fine and common.</p>
+    </div>
+
+    <div class="tagbox">
+      <code data-tag-key>start_date</code><code>=</code><input
+        data-tag-value
+        type="text"
+        value={existing ? existing.raw : ''}
+        placeholder="1987"
+        aria-label="Opening date value"
+        spellcheck="false"
+      />
+      <button type="button" data-copy>Copy</button>
+      <span class="nearme-note" data-copy-status role="status"></span>
+    </div>
+
+    <div class="section-head">
+      <h2>Putting it in</h2>
+    </div>
+
+    <ol class="steps">
+      <li>
+        <a class="button" href={idUrl}>Open {venue.name} in the OSM editor</a>
+        <p>
+          You will need an OpenStreetMap account &mdash; free, and an email address is all it takes.
+          The editor cannot be handed a tag through a link, so add it yourself: scroll the left-hand
+          panel to <strong>Add field</strong>, or open <strong>All tags</strong> and enter the pair
+          above.
+        </p>
+      </li>
+      <li>
+        <p>
+          If you use <a href="https://josm.openstreetmap.de/">JOSM</a> with remote control switched
+          on, <a href={josmUrl}>this link</a> loads the venue with{' '}
+          <code>start_date</code> already filled in &mdash; replace <code>YYYY</code> and review
+          before you upload.
+        </p>
+      </li>
+    </ol>
+
+    <div class="caveat">
+      <p style="margin-top:0">
+        <strong>Which date?</strong> The one the business opened its doors, not the one the building
+        went up. Those get confused constantly, and a 19th-century date on a bar that opened in 2019
+        is the commonest error in this tag.
+      </p>
+      <p style="margin-bottom:0">
+        <strong>If you only know roughly:</strong> write the year, <code>1987</code>. Do not pad a
+        month out to <code>1987-05-01</code> to look precise &mdash; that reads as the first of May
+        and this site will show it as one. <code>1987-05</code> is the honest form for a month.
+      </p>
+    </div>
+
+    <p style="margin-top:2.5rem"><a href={url('/')}>&larr; Back to the feed</a></p>
+  </article>
+</Base>
+
+<script>
+  const button = document.querySelector('[data-copy]');
+  if (button) {
+    const value = document.querySelector('[data-tag-value]');
+    const status = document.querySelector('[data-copy-status]');
+    button.addEventListener('click', async () => {
+      const text = `start_date=${value.value.trim() || 'YYYY'}`;
+      try {
+        await navigator.clipboard.writeText(text);
+        status.textContent = `Copied ${text}`;
+      } catch {
+        value.select();
+        status.textContent = 'Select and copy the value.';
+      }
+    });
+  }
+</script>

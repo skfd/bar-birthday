@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import Venue from '../../components/Venue.astro';
+import NearMe from '../../components/NearMe.astro';
 import { realBirthdays, venues } from '../../lib/venues.js';
 
 const dated = realBirthdays.filter((v) => !v.startDate.approximate);
@@ -20,6 +21,8 @@ const approximate = realBirthdays.filter((v) => v.startDate.approximate);
       Oldest first.
     </p>
   </section>
+
+  <NearMe />
 
   <ul class="venues">
     {dated.map((venue) => <Venue venue={venue} />)}

@@ -36,20 +36,54 @@ export const venues = raw
   })
   .filter((v) => v.name && v.createdAt);
 
-/** Venues whose OSM creation date falls on the given month/day. Never empty in practice. */
-export function mapBirthdaysOn(date) {
-  const month = date.getUTCMonth() + 1;
-  const day = date.getUTCDate();
+/**
+ * Venues whose OSM creation date falls on a given month and day, with ages
+ * counted against `refYear`. Never empty for 360 of the 366 days.
+ */
+export function mapBirthdaysForDay(month, day, refYear) {
   return venues
     .filter((v) => {
       const c = new Date(v.createdAt);
       return c.getUTCMonth() + 1 === month && c.getUTCDate() === day;
     })
-    .map((v) => ({
-      ...v,
-      yearsOnMap: date.getUTCFullYear() - new Date(v.createdAt).getUTCFullYear(),
-    }))
+    .map((v) => ({ ...v, yearsOnMap: refYear - new Date(v.createdAt).getUTCFullYear() }))
     .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+}
+
+/** Venues whose OSM creation date falls on the given date's month/day. */
+export function mapBirthdaysOn(date) {
+  return mapBirthdaysForDay(date.getUTCMonth() + 1, date.getUTCDate(), date.getUTCFullYear());
+}
+
+const pad = (n) => String(n).padStart(2, '0');
+
+/** `MM-DD` for a date — the key a day permalink is addressed by. */
+export function dayKey(date) {
+  return `${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}`;
+}
+
+/**
+ * Every `MM-DD` in a calendar year, in order. 2024 is used purely as a leap year
+ * so that 29 February gets a page like any other day.
+ */
+export const allDayKeys = (() => {
+  const keys = [];
+  const d = new Date(Date.UTC(2024, 0, 1));
+  while (d.getUTCFullYear() === 2024) {
+    keys.push(dayKey(d));
+    d.setUTCDate(d.getUTCDate() + 1);
+  }
+  return keys;
+})();
+
+/** Human label for a `MM-DD`, e.g. "31 August". */
+export function dayLabel(md) {
+  const [m, d] = md.split('-').map(Number);
+  return new Date(Date.UTC(2024, m - 1, d)).toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'long',
+    timeZone: 'UTC',
+  });
 }
 
 /** The tier above the feed: venues carrying a real `start_date`. */

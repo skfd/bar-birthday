@@ -1,0 +1,62 @@
+---
+import Base from '../../layouts/Base.astro';
+import Venue from '../../components/Venue.astro';
+import NearMe from '../../components/NearMe.astro';
+import { allDayKeys, mapBirthdaysForDay, dayLabel } from '../../lib/venues.js';
+import { url } from '../../lib/url.js';
+
+// A page per calendar day, so any day of the year is linkable rather than
+// existing only on the morning it happens to be.
+export function getStaticPaths() {
+  const refYear = new Date().getUTCFullYear();
+  return allDayKeys.map((md, i) => {
+    const [month, day] = md.split('-').map(Number);
+    return {
+      params: { md },
+      props: {
+        md,
+        venues: mapBirthdaysForDay(month, day, refYear),
+        prev: allDayKeys[(i - 1 + allDayKeys.length) % allDayKeys.length],
+        next: allDayKeys[(i + 1) % allDayKeys.length],
+      },
+    };
+  });
+}
+
+const { md, venues: todays, prev, next } = Astro.props;
+const label = dayLabel(md);
+const oldest = todays[0];
+---
+
+<Base
+  title={`${label} — on the map since | Bar Birthday`}
+  description={`${todays.length} Ontario bars and pubs first appeared on OpenStreetMap on ${label}.`}
+>
+  <section class="section-head">
+    <h2>{label}</h2>
+    <p>
+      {todays.length}{' '}
+      {todays.length === 1 ? 'Ontario venue was' : 'Ontario venues were'} first drawn on the map on
+      this day{oldest && <> &mdash; the earliest of them {oldest.yearsOnMap} years ago</>}.
+    </p>
+  </section>
+
+  {todays.length > 0 && <NearMe />}
+
+  {
+    todays.length > 0 ? (
+      <ul class="venues">
+        {todays.map((venue) => (
+          <Venue venue={venue} showYears={true} />
+        ))}
+      </ul>
+    ) : (
+      <p>Nothing was drawn on the map on this day &mdash; one of six such days in the year.</p>
+    )
+  }
+
+  <nav class="daynav">
+    <a href={url(`/day/${prev}/`)}>&larr; {dayLabel(prev)}</a>
+    <a href={url(`/day/${next}/`)}>{dayLabel(next)} &rarr;</a>
+  </nav>
+</Base>

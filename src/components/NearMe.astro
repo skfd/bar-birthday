@@ -1,0 +1,78 @@
+---
+// Asks the browser for a location and annotates each venue card with a distance.
+// Everything happens in the page: no coordinates are sent anywhere, because there
+// is nowhere to send them — the site is static files.
+---
+
+<div class="nearme" data-nearme hidden>
+  <button type="button" data-nearme-ask>Show how far away these are</button>
+  <span class="nearme-note" data-nearme-status role="status"
+    >Your location stays in this browser. Nothing is sent anywhere.</span
+  >
+</div>
+
+<script>
+  const root = document.querySelector('[data-nearme]');
+  if (root && 'geolocation' in navigator) {
+    const status = root.querySelector('[data-nearme-status]');
+    const button = root.querySelector('[data-nearme-ask]');
+    root.hidden = false;
+
+    const format = (km) =>
+      km < 1 ? `${Math.round(km * 1000)} m away` : `${km < 10 ? km.toFixed(1) : Math.round(km)} km away`;
+
+    // Haversine. Good to well under a percent at city distances, which is far
+    // finer than the question "is this one near me" needs.
+    function distanceKm(lat1, lon1, lat2, lon2) {
+      const toRad = (d) => (d * Math.PI) / 180;
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      const a =
+        Math.sin(dLat / 2) ** 2 +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+      return 6371 * 2 * Math.asin(Math.sqrt(a));
+    }
+
+    function annotate(lat, lon) {
+      const cards = [...document.querySelectorAll('[data-lat][data-lon]')];
+      let nearest = Infinity;
+      for (const card of cards) {
+        const km = distanceKm(lat, lon, Number(card.dataset.lat), Number(card.dataset.lon));
+        const slot = card.querySelector('[data-distance]');
+        if (slot) slot.textContent = format(km);
+        card.dataset.km = String(km);
+        nearest = Math.min(nearest, km);
+      }
+      // Ontario-wide data and a visitor from anywhere: say so rather than
+      // presenting a 4,000 km "nearest" as if it were useful.
+      status.textContent =
+        nearest > 300
+          ? `Nearest is ${format(nearest)} — this site only covers Ontario.`
+          : `Nearest is ${format(nearest)}. Sorted by distance.`;
+      if (nearest <= 300) sortByDistance(cards);
+      button.hidden = true;
+    }
+
+    function sortByDistance(cards) {
+      const list = cards[0]?.closest('ul');
+      if (!list) return;
+      for (const card of cards.sort((a, b) => Number(a.dataset.km) - Number(b.dataset.km))) {
+        list.appendChild(card);
+      }
+    }
+
+    button.addEventListener('click', () => {
+      status.textContent = 'Asking your browser…';
+      navigator.geolocation.getCurrentPosition(
+        (pos) => annotate(pos.coords.latitude, pos.coords.longitude),
+        (err) => {
+          status.textContent =
+            err.code === err.PERMISSION_DENIED
+              ? 'No location, no problem — everything above still works.'
+              : 'Could not get a location from your browser.';
+        },
+        { timeout: 10000, maximumAge: 300000 },
+      );
+    });
+  }
+</script>
