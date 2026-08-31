@@ -38,7 +38,7 @@ const todayPath = `/day/${dayKey(today)}/`;
     todays.length > 0 ? (
       <ul class="venues">
         {todays.map((venue) => (
-          <Venue venue={venue} showYears={true} />
+          <Venue venue={venue} showYears={true} asToday={true} />
         ))}
       </ul>
     ) : (

@@ -3,7 +3,7 @@ import { address, formatDate } from '../lib/venues.js';
 import { confidenceLabel } from '../lib/start-date.js';
 import { url } from '../lib/url.js';
 
-const { venue, showYears = false } = Astro.props;
+const { venue, showYears = false, asToday = false } = Astro.props;
 const where = address(venue);
 const kind = venue.amenity === 'pub' ? 'Pub' : venue.amenity === 'nightclub' ? 'Nightclub' : venue.amenity === 'biergarten' ? 'Biergarten' : 'Bar';
 // Only venues in `realBirthdays` get a page, and that excludes an unreadable
@@ -20,7 +20,7 @@ const linked = Boolean(venue.startDate) && venue.startDate.precision !== 'none';
   <p class="venue-line">
     On the map since {formatDate(venue.createdAt)}{
       showYears && (
-        <> &mdash; <span class="years">{venue.yearsOnMap === 0 ? 'this year' : `${venue.yearsOnMap} ${venue.yearsOnMap === 1 ? 'year' : 'years'} ago today`}</span></>
+        <> &mdash; <span class="years">{venue.yearsOnMap === 0 ? 'this year' : `${venue.yearsOnMap} ${venue.yearsOnMap === 1 ? 'year' : 'years'}${asToday ? ' ago today' : ''}`}</span></>
       )
     }
   </p>

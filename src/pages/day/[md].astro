@@ -2,7 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import Venue from '../../components/Venue.astro';
 import NearMe from '../../components/NearMe.astro';
-import { allDayKeys, mapBirthdaysForDay, dayLabel } from '../../lib/venues.js';
+import { allDayKeys, mapBirthdaysForDay, dayLabel, dayKey } from '../../lib/venues.js';
 import { url } from '../../lib/url.js';
 
 // A page per calendar day, so any day of the year is linkable rather than
@@ -25,6 +25,7 @@ export function getStaticPaths() {
 
 const { md, venues: todays, prev, next } = Astro.props;
 const label = dayLabel(md);
+const isToday = md === dayKey(new Date());
 const oldest = todays[0];
 ---
 
@@ -47,7 +48,7 @@ const oldest = todays[0];
     todays.length > 0 ? (
       <ul class="venues">
         {todays.map((venue) => (
-          <Venue venue={venue} showYears={true} />
+          <Venue venue={venue} showYears={true} asToday={isToday} />
         ))}
       </ul>
     ) : (

@@ -22,7 +22,7 @@ const approximate = realBirthdays.filter((v) => v.startDate.approximate);
     </p>
   </section>
 
-  <NearMe />
+  <NearMe sort={false} />
 
   <ul class="venues">
     {dated.map((venue) => <Venue venue={venue} />)}
