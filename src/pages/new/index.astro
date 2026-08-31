@@ -1,0 +1,34 @@
+---
+import Base from '../../layouts/Base.astro';
+import Venue from '../../components/Venue.astro';
+import { newOnTheMap } from '../../lib/venues.js';
+
+const today = new Date();
+const recent = newOnTheMap(today, 30);
+---
+
+<Base
+  title="New on the map | Bar Birthday"
+  description="Ontario bars and pubs added to OpenStreetMap in the last 30 days."
+  current="new"
+>
+  <section class="section-head">
+    <h2>New on the map</h2>
+    <p>
+      Ontario bars and pubs somebody drew into OpenStreetMap in the last 30 days. Newly mapped, not
+      necessarily newly open &mdash; a place can stand for decades before anyone puts it on the map.
+    </p>
+  </section>
+
+  {
+    recent.length > 0 ? (
+      <ul class="venues">
+        {recent.map((venue) => (
+          <Venue venue={venue} />
+        ))}
+      </ul>
+    ) : (
+      <p>Nothing new in the last 30 days.</p>
+    )
+  }
+</Base>

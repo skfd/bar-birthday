@@ -1,0 +1,117 @@
+---
+import Base from '../../layouts/Base.astro';
+import { realBirthdays, address, formatDate } from '../../lib/venues.js';
+import { confidenceLabel } from '../../lib/start-date.js';
+
+// Only the venues with a real opening date get a page of their own. The other
+// ~1,838 have nothing on them yet beyond a map birthday, and live in the feed.
+export function getStaticPaths() {
+  return realBirthdays.map((venue) => ({ params: { slug: venue.slug }, props: { venue } }));
+}
+
+const { venue } = Astro.props;
+const sd = venue.startDate;
+const today = new Date();
+const age = sd.year !== null ? today.getUTCFullYear() - sd.year : null;
+const where = address(venue);
+const kind =
+  venue.amenity === 'pub' ? 'Pub' :
+  venue.amenity === 'nightclub' ? 'Nightclub' :
+  venue.amenity === 'biergarten' ? 'Biergarten' : 'Bar';
+const yearsOnMap = today.getUTCFullYear() - new Date(venue.createdAt).getUTCFullYear();
+---
+
+<Base
+  title={`${venue.name} | Bar Birthday`}
+  description={`${venue.name}${where ? ` in ${venue.city ?? 'Ontario'}` : ''} opened ${sd.display}.`}
+>
+  <article>
+    <header class="bar-hero">
+      <h1>{venue.name}</h1>
+      <p class="bar-age">
+        {
+          age !== null && age > 0 ? (
+            <>Open <strong>{age} years</strong>, by the map&rsquo;s account &mdash; since {sd.display}.</>
+          ) : (
+            <>Opened {sd.display}.</>
+          )
+        }
+      </p>
+    </header>
+
+    <dl class="facts">
+      <div>
+        <dt>Opened</dt>
+        <dd>
+          {sd.display} <span class="chip" data-precision={sd.precision}>{confidenceLabel(sd)}</span>
+        </dd>
+      </div>
+      {
+        sd.raw !== sd.display && (
+          <div>
+            <dt>Tagged as</dt>
+            <dd><code>{sd.raw}</code></dd>
+          </div>
+        )
+      }
+      <div>
+        <dt>On the map since</dt>
+        <dd>{formatDate(venue.createdAt)} &mdash; {yearsOnMap} years</dd>
+      </div>
+      <div>
+        <dt>Kind</dt>
+        <dd>{kind}</dd>
+      </div>
+      {
+        where && (
+          <div>
+            <dt>Where</dt>
+            <dd>{where}</dd>
+          </div>
+        )
+      }
+      {
+        venue.website && (
+          <div>
+            <dt>Website</dt>
+            <dd><a href={venue.website}>{venue.website.replace(/^https?:\/\//, '').replace(/\/$/, '')}</a></dd>
+          </div>
+        )
+      }
+      <div>
+        <dt>In OpenStreetMap</dt>
+        <dd>
+          <a href={venue.osmUrl}>{venue.osmType}/{venue.osmId}</a> &middot;{' '}
+          <a href={venue.editUrl}>edit</a>
+        </dd>
+      </div>
+    </dl>
+
+    {
+      sd.precision === 'month' && (
+        <div class="caveat">
+          This date is recorded to the month. Where OSM holds a first-of-the-month date it is usually
+          month precision padded out, not a real 1st, so we do not treat it as a day.
+        </div>
+      )
+    }
+    {
+      sd.approximate && (
+        <div class="caveat">
+          The date is written as <code>{sd.raw}</code> &mdash; a range or a qualifier rather than a
+          date. Shown as tagged. If you know the real one, it is worth correcting.
+        </div>
+      )
+    }
+    {
+      age !== null && age > 120 && (
+        <div class="caveat">
+          A date this old often belongs to the building rather than the business. Worth checking
+          before repeating it.
+        </div>
+      )
+    }
+  </article>
+
+  <p style="margin-top:2.5rem"><a href="/birthdays/">&larr; All real birthdays</a></p>
+</Base>

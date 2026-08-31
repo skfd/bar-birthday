@@ -1,0 +1,4 @@
+node_modules/
+dist/
+.astro/
+data/ontario-venues.raw.json

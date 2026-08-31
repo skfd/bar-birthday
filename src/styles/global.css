@@ -1,0 +1,327 @@
+/* Warm barroom: low light, brass and amber, warm paper for the type. */
+
+:root {
+  --bg: #14100c;
+  --bg-raised: #1e1811;
+  --bg-sunk: #0d0a07;
+  --rule: #3a2e20;
+  --ink: #f2e8d8;
+  --ink-dim: #b7a68d;
+  --ink-faint: #7d6f5c;
+  --amber: #e0a33e;
+  --amber-dim: #a8762a;
+  --brass: #c9a227;
+
+  --serif: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+  --sans: ui-sans-serif, system-ui, 'Segoe UI', Helvetica, Arial, sans-serif;
+
+  --measure: 68ch;
+  --pad: clamp(1.25rem, 4vw, 3rem);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg);
+  /* A faint warm glow from above, as if from one low lamp over the bar. */
+  background-image: radial-gradient(120% 60% at 50% -10%, #2a2015 0%, transparent 60%);
+  background-attachment: fixed;
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: clamp(1rem, 0.95rem + 0.2vw, 1.125rem);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--amber);
+  text-decoration-color: var(--amber-dim);
+  text-underline-offset: 0.2em;
+}
+
+a:hover {
+  color: #f2bd63;
+}
+
+.wrap {
+  max-width: var(--measure);
+  margin-inline: auto;
+  padding-inline: var(--pad);
+}
+
+/* Header ------------------------------------------------------------------ */
+
+.masthead {
+  padding-block: clamp(2.5rem, 8vw, 5rem) 1.5rem;
+  text-align: center;
+}
+
+.masthead h1 {
+  margin: 0;
+  font-size: clamp(2rem, 1.4rem + 3vw, 3.25rem);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
+.masthead h1 a {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.masthead p {
+  margin: 0.6rem auto 0;
+  max-width: 46ch;
+  color: var(--ink-dim);
+  font-size: 0.95rem;
+}
+
+.nav {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 1.75rem;
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.nav a {
+  color: var(--ink-faint);
+  text-decoration: none;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid transparent;
+}
+
+.nav a:hover,
+.nav a[aria-current='page'] {
+  color: var(--amber);
+  border-bottom-color: var(--amber-dim);
+}
+
+/* Section headings -------------------------------------------------------- */
+
+.section-head {
+  margin: clamp(2.5rem, 7vw, 4rem) 0 1.5rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.section-head h2 {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 400;
+}
+
+.section-head p {
+  margin: 0.4rem 0 0;
+  color: var(--ink-faint);
+  font-family: var(--sans);
+  font-size: 0.82rem;
+}
+
+/* Venue list -------------------------------------------------------------- */
+
+.venues {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.venue {
+  padding: 1.15rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.venue:last-child {
+  border-bottom: 0;
+}
+
+.venue-name {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 400;
+}
+
+.venue-line {
+  margin: 0.3rem 0 0;
+  color: var(--ink-dim);
+  font-size: 0.95rem;
+}
+
+.venue-meta {
+  margin: 0.45rem 0 0;
+  color: var(--ink-faint);
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  letter-spacing: 0.03em;
+}
+
+.venue-meta a {
+  color: var(--ink-faint);
+}
+
+.venue-meta a:hover {
+  color: var(--amber);
+}
+
+.years {
+  color: var(--amber);
+  font-variant-numeric: oldstyle-nums;
+}
+
+/* Confidence chip --------------------------------------------------------- */
+
+.chip {
+  display: inline-block;
+  padding: 0.1rem 0.5rem;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  color: var(--ink-faint);
+  font-family: var(--sans);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  vertical-align: 0.1em;
+}
+
+.chip[data-precision='day'] {
+  border-color: var(--amber-dim);
+  color: var(--amber);
+}
+
+/* Call to action ---------------------------------------------------------- */
+
+.cta {
+  margin: clamp(2.5rem, 7vw, 4rem) 0;
+  padding: 1.5rem;
+  background: var(--bg-raised);
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+}
+
+.cta h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.15rem;
+  font-weight: 400;
+}
+
+.cta p {
+  margin: 0;
+  color: var(--ink-dim);
+  font-size: 0.95rem;
+}
+
+.button {
+  display: inline-block;
+  margin-top: 1rem;
+  padding: 0.55rem 1.1rem;
+  background: var(--amber);
+  color: #14100c;
+  border-radius: 2px;
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+}
+
+.button:hover {
+  background: #f2bd63;
+  color: #14100c;
+}
+
+/* Single bar -------------------------------------------------------------- */
+
+.bar-hero {
+  padding-block: clamp(2rem, 6vw, 3.5rem) 0;
+}
+
+.bar-hero h1 {
+  margin: 0;
+  font-size: clamp(1.9rem, 1.4rem + 2.4vw, 2.75rem);
+  font-weight: 400;
+}
+
+.bar-age {
+  margin: 1rem 0 0;
+  font-size: 1.25rem;
+  color: var(--ink-dim);
+}
+
+.bar-age strong {
+  color: var(--amber);
+  font-weight: 400;
+}
+
+.facts {
+  margin: 2rem 0 0;
+  border-top: 1px solid var(--rule);
+}
+
+.facts div {
+  display: flex;
+  gap: 1rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--rule);
+  font-size: 0.95rem;
+}
+
+.facts dt {
+  flex: 0 0 11rem;
+  margin: 0;
+  color: var(--ink-faint);
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding-top: 0.22rem;
+}
+
+.facts dd {
+  margin: 0;
+}
+
+.caveat {
+  margin-top: 2rem;
+  padding: 1rem 1.15rem;
+  background: var(--bg-sunk);
+  border-left: 2px solid var(--amber-dim);
+  color: var(--ink-dim);
+  font-size: 0.9rem;
+}
+
+/* Footer ------------------------------------------------------------------ */
+
+.foot {
+  margin-top: clamp(3rem, 9vw, 6rem);
+  padding-block: 2rem 3rem;
+  border-top: 1px solid var(--rule);
+  color: var(--ink-faint);
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  line-height: 1.7;
+}
+
+.foot a {
+  color: var(--ink-faint);
+}
+
+.foot a:hover {
+  color: var(--amber);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}

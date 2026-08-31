@@ -1,0 +1,51 @@
+---
+import Base from '../../layouts/Base.astro';
+import Venue from '../../components/Venue.astro';
+import { realBirthdays, venues } from '../../lib/venues.js';
+
+const dated = realBirthdays.filter((v) => !v.startDate.approximate);
+const approximate = realBirthdays.filter((v) => v.startDate.approximate);
+---
+
+<Base
+  title="Real birthdays | Bar Birthday"
+  description={`The ${realBirthdays.length} Ontario bars and pubs that record an opening date in OpenStreetMap.`}
+  current="birthdays"
+>
+  <section class="section-head">
+    <h2>Real birthdays</h2>
+    <p>
+      {realBirthdays.length} of Ontario&rsquo;s {venues.length} bars and pubs carry a{' '}
+      <code>start_date</code> in OpenStreetMap &mdash; an actual opening date, not a map birthday.
+      Oldest first.
+    </p>
+  </section>
+
+  <ul class="venues">
+    {dated.map((venue) => <Venue venue={venue} />)}
+  </ul>
+
+  {
+    approximate.length > 0 && (
+      <>
+        <section class="section-head">
+          <h2>Roughly</h2>
+          <p>
+            {approximate.length} more give a date we can only read approximately &mdash; a range, or a
+            qualifier. Shown as written.
+          </p>
+        </section>
+        <ul class="venues">
+          {approximate.map((venue) => (
+            <Venue venue={venue} />
+          ))}
+        </ul>
+      </>
+    )
+  }
+
+  <div class="caveat">
+    A word of caution on old dates: <code>start_date</code> sometimes describes the building rather
+    than the business in it. A room that went up in 1890 may have been a bar only since 2019.
+  </div>
+</Base>

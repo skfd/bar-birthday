@@ -1,0 +1,55 @@
+---
+import Base from '../layouts/Base.astro';
+import Venue from '../components/Venue.astro';
+import { mapBirthdaysOn, realBirthdays, venues } from '../lib/venues.js';
+
+// The site is rebuilt nightly, so "today" is the build date.
+const today = new Date();
+const todays = mapBirthdaysOn(today);
+const dateLabel = today.toLocaleDateString('en-CA', {
+  day: 'numeric',
+  month: 'long',
+  timeZone: 'UTC',
+});
+const oldest = todays[0];
+---
+
+<Base
+  title={`On the map since — ${dateLabel} | Bar Birthday`}
+  description={`${todays.length} Ontario bars and pubs first appeared on OpenStreetMap on ${dateLabel}.`}
+  current="home"
+>
+  <section class="section-head">
+    <h2>{dateLabel}</h2>
+    <p>
+      {todays.length}{' '}
+      {todays.length === 1 ? 'Ontario venue was' : 'Ontario venues were'} first drawn on the map on
+      this day{oldest && <> &mdash; the earliest of them {oldest.yearsOnMap} years ago</>}.
+    </p>
+  </section>
+
+  {
+    todays.length > 0 ? (
+      <ul class="venues">
+        {todays.map((venue) => (
+          <Venue venue={venue} showYears={true} />
+        ))}
+      </ul>
+    ) : (
+      <p>
+        Nothing was added to the map on this day, which is rare. Try{' '}
+        <a href="/birthdays/">the real birthdays</a>.
+      </p>
+    )
+  }
+
+  <div class="cta">
+    <h2>Only {realBirthdays.length} of Ontario&rsquo;s {venues.length} bars say when they opened.</h2>
+    <p>
+      Everything above is a map birthday, not an opening date. If you know when one of these places
+      actually opened its doors, it takes a minute to put that into OpenStreetMap, and it stays there
+      for everyone.
+    </p>
+    <a class="button" href="/birthdays/">See the ones that do</a>
+  </div>
+</Base>

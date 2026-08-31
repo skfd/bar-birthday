@@ -1,0 +1,37 @@
+---
+import { address, formatDate } from '../lib/venues.js';
+import { confidenceLabel } from '../lib/start-date.js';
+
+const { venue, showYears = false } = Astro.props;
+const where = address(venue);
+const kind = venue.amenity === 'pub' ? 'Pub' : venue.amenity === 'nightclub' ? 'Nightclub' : venue.amenity === 'biergarten' ? 'Biergarten' : 'Bar';
+const linked = Boolean(venue.startDate);
+---
+
+<li class="venue">
+  <p class="venue-name">
+    {linked ? <a href={`/bars/${venue.slug}/`}>{venue.name}</a> : venue.name}
+  </p>
+
+  <p class="venue-line">
+    On the map since {formatDate(venue.createdAt)}{
+      showYears && (
+        <> &mdash; <span class="years">{venue.yearsOnMap === 0 ? 'this year' : `${venue.yearsOnMap} ${venue.yearsOnMap === 1 ? 'year' : 'years'} ago today`}</span></>
+      )
+    }
+  </p>
+
+  {
+    venue.startDate && (
+      <p class="venue-line">
+        Opened {venue.startDate.display}{' '}
+        <span class="chip" data-precision={venue.startDate.precision}>{confidenceLabel(venue.startDate)}</span>
+      </p>
+    )
+  }
+
+  <p class="venue-meta">
+    {kind}{where && <> &middot; {where}</>} &middot; <a href={venue.osmUrl}>OSM</a>
+    {!venue.startDate && <> &middot; <a href={venue.editUrl}>add an opening date</a></>}
+  </p>
+</li>

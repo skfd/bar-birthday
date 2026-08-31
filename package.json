@@ -1,0 +1,15 @@
+{
+  "name": "bar-birthday",
+  "version": "0.1.0-dev",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "data": "node scripts/backfill-created.mjs && node scripts/build-dataset.mjs",
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "devDependencies": {
+    "astro": "^5.14.1"
+  }
+}

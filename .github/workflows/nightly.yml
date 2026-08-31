@@ -1,0 +1,66 @@
+name: Nightly build
+
+on:
+  schedule:
+    # 07:10 UTC — a little after 03:00 Toronto, and off the top of the hour so we
+    # are not in the crowd hitting Overpass.
+    - cron: '10 7 * * *'
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: nightly
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Fetch the Ontario venue list
+        run: node scripts/fetch-venues.mjs
+
+      # A v1 timestamp never changes, so this only ever fetches element ids that
+      # are not already in data/created.jsonl — usually a handful, not 1,856.
+      - name: Backfill creation dates for anything new
+        run: node scripts/backfill-created.mjs
+
+      - name: Commit any new creation dates
+        run: |
+          git config user.name  'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          if ! git diff --quiet -- data/created.jsonl; then
+            git add data/created.jsonl
+            git commit -m 'Cache creation dates for newly mapped venues'
+            git push
+          fi
+
+      - run: npm run build
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

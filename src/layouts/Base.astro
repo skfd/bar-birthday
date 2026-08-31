@@ -1,0 +1,48 @@
+---
+import '../styles/global.css';
+
+const { title, description, current } = Astro.props;
+const pathname = Astro.url.pathname;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <link rel="canonical" href={new URL(pathname, Astro.site)} />
+  </head>
+  <body>
+    <header class="masthead wrap">
+      <h1><a href="/">Bar Birthday</a></h1>
+      <p>Ontario bars and pubs, by how long they have been standing &mdash; and how long they have been on the map.</p>
+      <nav class="nav">
+        <a href="/" aria-current={current === 'home' ? 'page' : undefined}>Today</a>
+        <a href="/birthdays/" aria-current={current === 'birthdays' ? 'page' : undefined}>Real birthdays</a>
+        <a href="/new/" aria-current={current === 'new' ? 'page' : undefined}>New on the map</a>
+      </nav>
+    </header>
+
+    <main class="wrap">
+      <slot />
+    </main>
+
+    <footer class="foot wrap">
+      <p>
+        Data from <a href="https://www.openstreetmap.org/">OpenStreetMap</a>, &copy; OpenStreetMap
+        contributors, licensed under <a href="https://opendatacommons.org/licenses/odbl/">ODbL</a>.
+        Rebuilt nightly.
+      </p>
+      <p>
+        &ldquo;On the map since&rdquo; is the timestamp of an element&rsquo;s first version in OSM
+        &mdash; when someone first drew the place, which is not when it opened. A real opening date
+        only appears where somebody has tagged <code>start_date</code>.
+      </p>
+    </footer>
+  </body>
+</html>
