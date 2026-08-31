@@ -2,6 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import { realBirthdays, address, formatDate } from '../../lib/venues.js';
 import { confidenceLabel } from '../../lib/start-date.js';
+import { url } from '../../lib/url.js';
 
 // Only the venues with a real opening date get a page of their own. The other
 // ~1,838 have nothing on them yet beyond a map birthday, and live in the feed.
@@ -113,5 +114,5 @@ const yearsOnMap = today.getUTCFullYear() - new Date(venue.createdAt).getUTCFull
     }
   </article>
 
-  <p style="margin-top:2.5rem"><a href="/birthdays/">&larr; All real birthdays</a></p>
+  <p style="margin-top:2.5rem"><a href={url('/birthdays/')}>&larr; All real birthdays</a></p>
 </Base>

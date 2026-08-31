@@ -1,6 +1,7 @@
 ---
 import { address, formatDate } from '../lib/venues.js';
 import { confidenceLabel } from '../lib/start-date.js';
+import { url } from '../lib/url.js';
 
 const { venue, showYears = false } = Astro.props;
 const where = address(venue);
@@ -12,7 +13,7 @@ const linked = Boolean(venue.startDate) && venue.startDate.precision !== 'none';
 
 <li class="venue">
   <p class="venue-name">
-    {linked ? <a href={`/bars/${venue.slug}/`}>{venue.name}</a> : venue.name}
+    {linked ? <a href={url(`/bars/${venue.slug}/`)}>{venue.name}</a> : venue.name}
   </p>
 
   <p class="venue-line">

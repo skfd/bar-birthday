@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import { url } from '../lib/url.js';
 
 const { title, description, current } = Astro.props;
 const pathname = Astro.url.pathname;
@@ -19,12 +20,12 @@ const pathname = Astro.url.pathname;
   </head>
   <body>
     <header class="masthead wrap">
-      <h1><a href="/">Bar Birthday</a></h1>
+      <h1><a href={url('/')}>Bar Birthday</a></h1>
       <p>Ontario bars and pubs, by how long they have been standing &mdash; and how long they have been on the map.</p>
       <nav class="nav">
-        <a href="/" aria-current={current === 'home' ? 'page' : undefined}>Today</a>
-        <a href="/birthdays/" aria-current={current === 'birthdays' ? 'page' : undefined}>Real birthdays</a>
-        <a href="/new/" aria-current={current === 'new' ? 'page' : undefined}>New on the map</a>
+        <a href={url('/')} aria-current={current === 'home' ? 'page' : undefined}>Today</a>
+        <a href={url('/birthdays/')} aria-current={current === 'birthdays' ? 'page' : undefined}>Real birthdays</a>
+        <a href={url('/new/')} aria-current={current === 'new' ? 'page' : undefined}>New on the map</a>
       </nav>
     </header>
 

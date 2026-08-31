@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import Venue from '../components/Venue.astro';
 import { mapBirthdaysOn, realBirthdays, venues } from '../lib/venues.js';
+import { url } from '../lib/url.js';
 
 // The site is rebuilt nightly, so "today" is the build date.
 const today = new Date();
@@ -38,7 +39,7 @@ const oldest = todays[0];
     ) : (
       <p>
         Nothing was added to the map on this day, which is rare. Try{' '}
-        <a href="/birthdays/">the real birthdays</a>.
+        <a href={url('/birthdays/')}>the real birthdays</a>.
       </p>
     )
   }
@@ -50,6 +51,6 @@ const oldest = todays[0];
       actually opened its doors, it takes a minute to put that into OpenStreetMap, and it stays there
       for everyone.
     </p>
-    <a class="button" href="/birthdays/">See the ones that do</a>
+    <a class="button" href={url('/birthdays/')}>See the ones that do</a>
   </div>
 </Base>
